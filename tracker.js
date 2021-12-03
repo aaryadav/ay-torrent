@@ -9,7 +9,6 @@ const crypto = require('crypto');
 const torrentParser = require('./torrent-parser');
 const util = require('./util');
 
-
 module.exports.getPeers = () => {
     const socket = dgram.createSocket('udp4');
     const url = torrent.announce.toString('utf8');
@@ -40,7 +39,9 @@ function udpSend(socket, message, rawUrl, callback=()=>{}) {
 }
 
 function respType(resp) {
-
+    const action = resp.readUInt32BE(0);
+    if (action === 0) return 'connect';
+    if (action === 1) return 'announce';
 }
 
 function buildConnReq() {
