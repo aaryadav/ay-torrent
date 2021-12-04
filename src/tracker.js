@@ -9,13 +9,12 @@ const crypto = require('crypto');
 const torrentParser = require('./torrent-parser');
 const util = require('./util');
 
-module.exports.getPeers = () => {
+module.exports.getPeers = (torrent, callback) => {
     const socket = dgram.createSocket('udp4');
     const url = torrent.announce.toString('utf8');
-
     // 1. send connect request
     udpSend(socket, buildConnReq(), url);
-
+    
     socket.on('message', response => {
         if (respType(response) === 'connect') {
             // 2. receive and parse connect response
@@ -35,7 +34,7 @@ module.exports.getPeers = () => {
 
 function udpSend(socket, message, rawUrl, callback=()=>{}) {
     const url = new URL(rawUrl);
-    socket.send(message, 0, message.length, url.port, url.host, callback);
+    socket.send(message, 0, message.length, url.port, url.hostname, callback);
 }
 
 function respType(resp) {
@@ -72,7 +71,7 @@ function buildAnnounceReq(connId, torrent, port=6881) {
     // connection id
     connId.copy(buf, 0);
     // action
-    buf.qriteUInt32BE(1,8);
+    buf.writeUInt32BE(1,8);
     // transaction id
     crypto.randomBytes(4).copy(buf, 12);
     // info hash
