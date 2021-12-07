@@ -24,7 +24,17 @@ function download(peer, torrent) {
 
 // 2
 function msgHandler(msg, socket) {
-    if (isHandshake(msg)) socket.write(message.buildInterested());
+    if (isHandshake(msg)) {
+        socket.write(message.buildInterested());
+    } else {
+        const m = message.parse(msg);
+
+        if (m.id === 0) chokeHandler();
+        if (m.id === 1) unChokeHandler();
+        if (m.id === 4) haveHandler(m.payload);
+        if (m.id === 5) bitfieldHandler(m.payload);
+        if (m.id === 7) pieceHandler(m.payload);
+    }
 }
 
 // 3
@@ -49,3 +59,13 @@ function onWholeMsg(socket, callback) {
         }
     });
 }
+
+function chokeHandler() {}
+
+function unChokeHandler() {}
+
+function haveHandler() {}
+
+function bitfieldHandler() {}
+
+function pieceHandler() {}
